@@ -1,5 +1,7 @@
 <?php
 
+require_once 'connection.php';
+
 //genera nomi casuali
 function getRandName()
 {
@@ -27,5 +29,51 @@ function getRandEmail($name)
     return strtolower(str_replace(' ', '.', $name) . mt_rand(10, 99) . '@' . $domains[$rand]);
 }
 
+//genera codice fiscale
+function getRandFiscalCode()
+{
+    $i = 16;
+    $res = '';  //risulatato
 
-echo getRandEmail(getRandName());
+    while ($i > 0) {
+        // .= concatenazione stringa   
+        //chr()  Genera una stringa a byte singolo da un numero
+        $res .= chr(mt_rand(65, 90));
+        $i--;
+    }
+
+    return $res;
+}
+
+function getRandomAge()
+{
+    return mt_rand(0, 120);
+}
+
+function insertRandUser($totale, mysqli $conn) //inseriamo i dati generati casualmente nel database
+{
+
+    while ($totale > 0) { 
+
+        //inseriamo i dati generati casualmente in delle variabili
+        $username = getRandName();
+        $email = getRandEmail($username);
+        $fiscalcode = getRandFiscalCode();
+        $age = getRandomAge();
+
+
+        //query per inserire i valori 
+        $sql = 'INSERT INTO users (username,email,fiscalcode,age) VALUES ';
+        $sql .= "('$username','$email','$fiscalcode',$age)";
+        echo $totale . ' ' . $sql . '<br>';
+        $res = $conn->query($sql);
+
+        //se non ci sono errori decrementiamo la variabile totale
+        if (!$res) {
+            echo $conn->error;
+        } else $totale--;
+    }
+}
+
+
+insertRandUser(30, $mysqli);
